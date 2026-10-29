@@ -1,6 +1,7 @@
 """Build the art index once when needed, then start Telegram polling."""
 import logging
 import os
+from threading import Thread
 
 from bot import main as run_polling
 from build_index import INDEX_PATH, main as build_index
@@ -28,7 +29,11 @@ def main():
 
     if indexed < MAX_ID:
         log.info("Artwork index has %s/%s entries; building or resuming it.", indexed, MAX_ID)
-        build_index()
+        Thread(
+            target=build_index,
+            name="punk-art-indexer",
+            daemon=True,
+        ).start()
 
     run_polling()
 

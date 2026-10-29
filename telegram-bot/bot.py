@@ -24,6 +24,9 @@ except ImportError:
     pass
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+# httpx includes full Bot API request URLs in INFO logs; those URLs contain the token.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 log = logging.getLogger("punkid.bot")
 
 SHOW_HOLDER = os.environ.get("SHOW_HOLDER", "1") == "1"
@@ -192,12 +195,21 @@ def _get_index():
 
 
 def main():
-    app = Application.builder().token(os.environ["TELEGRAM_BOT_TOKEN"]).build()
+    app = (
+        Application.builder()
+        .token(os.environ["TELEGRAM_BOT_TOKEN"])
+        .connect_timeout(15)
+        .read_timeout(30)
+        .write_timeout(30)
+        .pool_timeout(10)
+        .build()
+    )
     app.add_handler(CommandHandler(["start", "help"], start))
     app.add_handler(CommandHandler("id", id_command))
     app.add_handler(MessageHandler(filters.PHOTO, on_photo))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
-    app.run_polling()
+    # Keep retrying transient Telegram API timeouts during startup.
+    app.run_polling(bootstrap_retries=-1)
 
 
 if __name__ == "__main__":
