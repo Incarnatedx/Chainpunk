@@ -1,15 +1,17 @@
-# [Project name]
+# Chain Punks Telegram Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A Telegram bot that returns Chain Punks ID cards by number or by matching uploaded artwork.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `python telegram-bot/run_bot.py` — build/resume the artwork index, then run the Telegram bot
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required project secrets: `TELEGRAM_BOT_TOKEN`, `ETH_RPC_URL`
+- Python dependencies: `telegram-bot/requirements.txt`
 
 ## Stack
 
@@ -38,7 +40,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- The first bot start indexes all 3,333 artwork images from Ethereum. The index is saved locally and resumed after interruptions.
+- Telegram bot commands require the bot process to remain running.
 
 ## Pointers
 

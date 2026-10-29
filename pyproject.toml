@@ -1,0 +1,22 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Emailjoshuaosondu", email = "64122697-emailjoshuaoson@users.noreply.replit.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "cairosvg>=2.7",
+    "pillow>=10",
+    "python-dotenv>=1.0",
+    "python-telegram-bot>=21",
+    "web3>=6",
+]
+
+[project.scripts]
+repl-nix-workspace = "repl_nix_workspace:main"
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"

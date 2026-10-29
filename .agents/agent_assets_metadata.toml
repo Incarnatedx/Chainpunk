@@ -1,0 +1,17 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "bkf72SuxXMzp3_9XA1EB8"
+uri = "file://.local/conversation-workspace/files/chain-punks-image-match-update.zip"
+type = "unspecified"
+title = "Chain Punks bot image-matching update"
+description = "Updated Telegram bot source, visual-matching index builder, and setup instructions. Preserve your existing .env file."
+logical_id = "393e3244-430e-492c-a828-701c7c101049"
+content_hash = "sha256:d6a4ed20f726dc95fbdf02da825997972687efea9ed26dce44a3d2cf9f76ab95"
+size = 12102
+mtime_ms = 1793310968683
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/conversation:f7bf3176-22d9-4200-ba70-38aa52e8e992/393e3244-430e-492c-a828-701c7c101049/20cd03bc-e287-4dae-9e6e-16f3b6610df2"
+storage_version_token = "1793310972513783"
+content_type = "application/octet-stream"
+source_uri = "file://chain-punks-image-match-update.zip"
