@@ -60,3 +60,4 @@ __pycache__/
 .env
 .venv/
 telegram-bot/punk_index.json
+/generated-artifacts/

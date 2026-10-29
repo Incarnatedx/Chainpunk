@@ -1,0 +1,1 @@
+- [Telegram token log exposure](telegram-token-logging.md) — HTTPX INFO can include the bot token in Telegram API request URLs.

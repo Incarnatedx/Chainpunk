@@ -15,3 +15,17 @@ storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/conversation:f7bf317
 storage_version_token = "1793310972513783"
 content_type = "application/octet-stream"
 source_uri = "file://chain-punks-image-match-update.zip"
+
+[[outputs]]
+id = "UCVc07qHyi0k1etkVTHix"
+uri = "file://generated-artifacts/chain-punk-2889-corrected.png"
+type = "image"
+title = "Corrected Chain Punk #2889 card"
+description = "Freshly rendered with Chromium so the embedded pixel glyphs match the source artwork."
+logical_id = "9d85fb56-c460-413b-b693-f7c98bcecd1c"
+content_hash = "sha256:3d56475a87777cfa0a905e5b0de078c34db4b5dad41f6abcfb714d64735796c0"
+size = 93411
+mtime_ms = 1793312659965
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:bc1c688e-9305-4fbb-8f52-0aba7e48be70/9d85fb56-c460-413b-b693-f7c98bcecd1c/0b308d32-9255-45b1-a1d0-27b529fc1309"
+storage_version_token = "1793312667298991"
+content_type = "image/png"

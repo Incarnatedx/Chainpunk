@@ -3,5 +3,4 @@ web3>=6
 pillow>=10
 cairosvg>=2.7
 python-dotenv>=1.0
-# only if you set RENDERER=browser:
-# playwright>=1.40
+playwright>=1.40

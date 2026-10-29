@@ -26,7 +26,9 @@ def _fingerprint_for(token_id):
     for attempt in range(3):
         try:
             svg = fetch_art(token_id)
-            png = svg_to_png(svg)
+            # Keep using Cairo for all index entries so hashes remain consistent
+            # with the index created before the card renderer was corrected.
+            png = svg_to_png(svg, renderer="cairosvg")
             with Image.open(io.BytesIO(png)) as image:
                 return token_id, fingerprint(image)
         except Exception as exc:

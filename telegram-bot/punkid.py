@@ -3,6 +3,7 @@ import base64
 import io
 import json
 import os
+import shutil
 import textwrap
 import time
 import urllib.parse
@@ -68,27 +69,47 @@ def parse_soul(text, limit=3):
     return bullets[:limit]
 
 
-def svg_to_png(svg_bytes, size=1000):
-    """SVG -> PNG. Default is cairosvg; set RENDERER=browser to use Playwright instead
-    (use it if the glyphs look wrong, since it honours fonts embedded in the SVG)."""
-    if os.environ.get("RENDERER", "cairosvg") == "browser":
+def svg_to_png(svg_bytes, size=1000, renderer=None):
+    """Render SVG art, using Chromium by default so embedded glyph fonts are preserved.
+
+    Pass renderer="cairosvg" for stable fingerprint generation in the existing image index.
+    """
+    renderer = (renderer or os.environ.get("RENDERER", "browser")).lower()
+    if renderer == "browser":
         from playwright.sync_api import sync_playwright
 
         b64 = base64.b64encode(svg_bytes).decode()
         html = (
-            f"<body style='margin:0;background:#0a0a0a'>"
-            f"<img src='data:image/svg+xml;base64,{b64}' style='width:{size}px;height:{size}px;object-fit:contain'>"
+            "<!doctype html><html><head><style>"
+            f"html,body{{margin:0;width:{size}px;height:{size}px;background:#0a0a0a}}"
+            "</style></head><body>"
+            f"<img id='art' src='data:image/svg+xml;base64,{b64}' "
+            f"style='display:block;width:{size}px;height:{size}px;object-fit:contain'>"
+            "</body></html>"
         )
         with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page(viewport={"width": size, "height": size})
-            page.set_content(html)
-            png = page.screenshot()
-            browser.close()
-        return png
-    import cairosvg
+            launch_options = {}
+            chromium_path = os.environ.get("CHROMIUM_PATH") or shutil.which("chromium")
+            if chromium_path:
+                launch_options["executable_path"] = chromium_path
+            browser = p.chromium.launch(**launch_options)
+            try:
+                page = browser.new_page(viewport={"width": size, "height": size})
+                page.set_content(html, wait_until="load")
+                page.locator("#art").evaluate("(image) => image.decode()")
+                return page.screenshot()
+            finally:
+                browser.close()
 
-    return cairosvg.svg2png(bytestring=svg_bytes, output_width=size, background_color="#0a0a0a")
+    if renderer == "cairosvg":
+        import cairosvg
+
+        return cairosvg.svg2png(
+            bytestring=svg_bytes,
+            output_width=size,
+            background_color="#0a0a0a",
+        )
+    raise ValueError("RENDERER must be 'browser' or 'cairosvg'.")
 
 
 def _short(addr):

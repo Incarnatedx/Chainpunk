@@ -42,6 +42,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 - The first bot start indexes all 3,333 artwork images from Ethereum. The index is saved locally and resumed after interruptions.
 - Telegram bot commands require the bot process to remain running.
+- Card artwork uses Chromium to preserve the embedded pixel glyphs; image-index rendering stays on Cairo so saved fingerprints remain consistent.
 
 ## Pointers
 
