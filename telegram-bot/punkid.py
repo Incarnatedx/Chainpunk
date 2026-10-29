@@ -69,38 +69,71 @@ def parse_soul(text, limit=3):
     return bullets[:limit]
 
 
-def svg_to_png(svg_bytes, size=1000, renderer=None):
-    """Render SVG art, using Chromium by default so embedded glyph fonts are preserved.
+class BrowserSvgRenderer:
+    """Reusable Chromium renderer so a full artwork index doesn't launch 3,333 browsers."""
 
-    Pass renderer="cairosvg" for stable fingerprint generation in the existing image index.
-    """
-    renderer = (renderer or os.environ.get("RENDERER", "browser")).lower()
-    if renderer == "browser":
+    def __init__(self, size=1000):
+        self.size = size
+        self._playwright = None
+        self._browser = None
+        self._page = None
+
+    def __enter__(self):
         from playwright.sync_api import sync_playwright
 
-        b64 = base64.b64encode(svg_bytes).decode()
-        html = (
-            "<!doctype html><html><head><style>"
-            f"html,body{{margin:0;width:{size}px;height:{size}px;background:#0a0a0a}}"
-            "</style></head><body>"
-            f"<img id='art' src='data:image/svg+xml;base64,{b64}' "
-            f"style='display:block;width:{size}px;height:{size}px;object-fit:contain'>"
-            "</body></html>"
-        )
-        with sync_playwright() as p:
+        self._playwright = sync_playwright().start()
+        try:
             launch_options = {}
             chromium_path = os.environ.get("CHROMIUM_PATH") or shutil.which("chromium")
             if chromium_path:
                 launch_options["executable_path"] = chromium_path
-            browser = p.chromium.launch(**launch_options)
-            try:
-                page = browser.new_page(viewport={"width": size, "height": size})
-                page.set_content(html, wait_until="load")
-                page.locator("#art").evaluate("(image) => image.decode()")
-                return page.screenshot()
-            finally:
-                browser.close()
+            self._browser = self._playwright.chromium.launch(**launch_options)
+            self._page = self._browser.new_page(
+                viewport={"width": self.size, "height": self.size}
+            )
+            return self
+        except Exception:
+            if self._browser is not None:
+                self._browser.close()
+            self._playwright.stop()
+            self._playwright = None
+            raise
 
+    def render(self, svg_bytes):
+        if self._page is None:
+            raise RuntimeError("BrowserSvgRenderer must be used inside a with block.")
+        b64 = base64.b64encode(svg_bytes).decode()
+        html = (
+            "<!doctype html><html><head><style>"
+            f"html,body{{margin:0;width:{self.size}px;height:{self.size}px;background:#0a0a0a}}"
+            "</style></head><body>"
+            f"<img id='art' src='data:image/svg+xml;base64,{b64}' "
+            f"style='display:block;width:{self.size}px;height:{self.size}px;object-fit:contain'>"
+            "</body></html>"
+        )
+        self._page.set_content(html, wait_until="load")
+        self._page.locator("#art").evaluate("(image) => image.decode()")
+        return self._page.screenshot()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            if self._browser is not None:
+                self._browser.close()
+        finally:
+            if self._playwright is not None:
+                self._playwright.stop()
+        self._page = None
+        self._browser = None
+        self._playwright = None
+        return False
+
+
+def svg_to_png(svg_bytes, size=1000, renderer=None):
+    """Render SVG art; Chromium preserves the custom glyph fonts embedded in Chain Punks."""
+    renderer = (renderer or os.environ.get("RENDERER", "browser")).lower()
+    if renderer == "browser":
+        with BrowserSvgRenderer(size=size) as browser:
+            return browser.render(svg_bytes)
     if renderer == "cairosvg":
         import cairosvg
 

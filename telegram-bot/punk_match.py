@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
-INDEX_VERSION = 1
+INDEX_VERSION = 2
 SIZE = 16
 HASH_BITS = SIZE * SIZE * 2
 MAX_DISTANCE = 40
@@ -42,7 +42,7 @@ def load_index(path):
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload.get("version") != INDEX_VERSION:
-        raise ValueError("Unsupported artwork index version")
+        return {}
     fingerprints = payload.get("fingerprints")
     if not isinstance(fingerprints, dict):
         raise ValueError("Invalid artwork index")
